@@ -11,7 +11,7 @@
             "program": "${workspaceRoot}\\liri.js",
             "cwd": "${workspaceRoot}",
             "args": [
-                "my-tweets"
+                "movie-this Sholay"
             ]
         },
         {
