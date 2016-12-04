@@ -1,11 +1,5 @@
-var argv = process.argv;
-var opr = argv[2];
-switch(opr){
-case "my-tweets": 
-// `my-tweets`
+function processTweet() {
 var twitterfile = require("./keys.js");
-
-//* This will show your last 20 tweets and when they were created at in your terminal/bash window.
 
 var Twitter = require('twitter');
  
@@ -29,36 +23,18 @@ client.get('statuses/user_timeline', params, function(error, tweets, response) {
     }
   }
 });
-
-break;
-case "spotify-this-song": 
-// `spotify-this-song`
-// * This will show the following information about the song in your terminal/bash window
-// 		* Artist(s)
-// 		* The song's name
-// 		* A preview link of the song from Spotify
-// 		* The album that the song is from
-
-// 	* if no song is provided then your program will default to
-// 		* "The Sign" by Ace of Base
-var spotify = require('spotify');
-var songName = "";
-for (var i=3; i<argv.length; i++){
-
-        // Build a string with the address.
-        songName = songName + " " + argv[i];
-
 }
 
-if (songName === "")
-  songName = "The Sign";
+function processSpotify(songName) {
+var spotify = require('spotify');
+
 console.log("Selected song=" + songName);
 spotify.search({ type: 'track', query: songName }, function(err, data) {
     if ( err ) {
         console.log('Error occurred: ' + err);
         return;
     }
- //console.log(data);
+    //console.log(data);
     // Do something with 'data' 
         var text = "Song name: " + songName+"\n";
         for(var i = 0; i < data.tracks.items.length; i++)
@@ -75,11 +51,9 @@ spotify.search({ type: 'track', query: songName }, function(err, data) {
 
         console.log(text);
 });
+}
 
-break;
-case "movie-this": 
-// `movie-this`
-var movieName = argv[3];
+function processMovie(movieName) {
 var request = require("request");
 
 function omdbResponse(err, resp, body){
@@ -95,14 +69,13 @@ function omdbResponse(err, resp, body){
     console.log("Rotten Tomato Url " + JSON.parse(body).tomatoURL);
   }
 }
-
 // Then run a request to the OMDB API with the movie specified
 var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&tomatoes=true&r=json";
 request(queryUrl, omdbResponse);
+}
 
-break;
-case "do-what-it-says":
-// Using the `fs` Node package, LIRI will take the text inside of random.txt and then use it 
+function processLiri() {
+  // Using the `fs` Node package, LIRI will take the text inside of random.txt and then use it 
 // to call one of LIRI's commands.
 // It should run `spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
 // Feel free to change the text in that document to test out the feature for other commands.
@@ -116,8 +89,54 @@ function readFileResult(err, data) {
   console.log(data);
   var dataArr = data.split(",");
   console.log(dataArr);
-}
+  switch(dataArr[0]){
+      case "my-tweets": 
+      processTweet();
+
+      break;
+      case "spotify-this-song": 
+      processSpotify(dataArr[1]);
+
+      break;
+      case "movie-this": 
+      processMovie(dataArr[1]);
+
+      break;
+    }
+  }
 fs.readFile("random.txt", "utf8", readFileResult);
+}
+
+
+
+var argv = process.argv;
+var opr = argv[2];
+switch(opr){
+case "my-tweets": 
+processTweet();
+
+break;
+case "spotify-this-song": 
+var songName = "";
+for (var i=3; i<argv.length; i++){
+        // Build a string with the address.
+        songName = songName + " " + argv[i];
+
+}
+
+if (songName === "")
+  songName = "The Sign";
+processSpotify(songName);
+
+break;
+case "movie-this": 
+var movieName = argv[3];
+processMovie(movieName);
+
+break;
+case "do-what-it-says":
+processLiri();
+break;
 }
 
 
